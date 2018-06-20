@@ -11,9 +11,9 @@ The redirect URI can be any website, simplest is http://localhost/.
 
 Once you have the Client ID, Client Secret, and Redirect URI you can either:
 1. Type in these commands in the command line:
-   - export SPOTIPY_CLIENT_ID= your-spotify-client-id
-   - export SPOTIPY_CLIENT_SECRET= your-spotify-client-secret
-   - export SPOTIPY_REDIRECT_URI= your-app-redirect-url
+   - export SPOTIPY_CLIENT_ID=your-spotify-client-id
+   - export SPOTIPY_CLIENT_SECRET=your-spotify-client-secret
+   - export SPOTIPY_REDIRECT_URI=your-app-redirect-url
    
 2. Change util.prompt_for_user_token(username, scope) in the source code, to util.prompt_for_user_token(username,scope,client_id='your-app-redirect-url',client_secret='your-app-redirect-url',redirect_uri='your-app-redirect-url')
 (All of these arguments are string arguments)
