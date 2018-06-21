@@ -52,7 +52,7 @@ def create_playlist(sp, key, items, allow_recent):
 
     playlist = sp.user_playlist_create(username, playlist_name)
 
-    threshold = max - (max / 4)
+    threshold = max - (max / 3.7)
 
     #List of track IDs for the playlist
     tracks = []
@@ -67,6 +67,9 @@ def create_playlist(sp, key, items, allow_recent):
                 continue
             tracks.append(i['id'])
             added.append(i)
+            for g in sp.artist(i['artists'][0]['id'])['genres']:
+                print(g)
+            print("")    
             
     sp.user_playlist_add_tracks(username, playlist['id'], tracks)
 
@@ -102,6 +105,11 @@ def process_playlists(username, sp, playlists):
                 break
     return result
 
+
+
+
+# START OF MAIN
+
 scope = 'playlist-modify-public'
 
 username = input('Your Spotify username: ')  
@@ -113,16 +121,17 @@ sp = spotipy.Spotify(auth=token)
 allow_recent = True
 
 print("Menu:")
-print("k - Make a top songs playlist around a keyword theme (Star Wars, World of Warcraft, etc.)")
+print("s - Make a top songs playlist around a keyword theme (Star Wars, World of Warcraft, etc.) or artist")
 print("p - Make a top songs playlist from your given public playlists")
-print("a - Make a top songs playlist from a specific artist.")
 
 pref = ''
 
-while pref != 'k' and pref != 'p':
+while pref != 's' and pref != 'p':
     pref = input("Your Choice? ")
 
-if pref == 'k':
+items = []
+
+if pref == 's':
     key = input('Enter playlist theme: ')
     key = '"' + key + '"'
     items = search(key, sp)
@@ -136,12 +145,10 @@ elif pref == 'p':
     for p in playlists:
         playlist_items += sp.user_playlist_tracks(username, p)['items']
 
-    items = []
-
     for p in playlist_items:
         items.append(p['track'])
-    key = input('Enter Name of New Playlist: ')    
-elif pref == 'a'
+    key = input('Enter Name of New Playlist: ')
+    
 create_playlist(sp, key, items, allow_recent)
 
 input('Success! Press ENTER to exit.')
