@@ -1,5 +1,5 @@
 # Spotify-Top-Songs-Playlist-Creator
-This is a simple Python script to create a playlist of the top 25th percentile of most popular songs (decided by the 'popularity' rating provided by the Spotify API) on Spotify for songs that revolve around a keyword. (like Star Wars, World of Warcraft, Lord of the Rings, etc.)
+This is a simple Python script to create a playlist of the top 25th percentile of most popular songs (decided by the 'popularity' rating provided by the Spotify API) on Spotify for songs of an artist or for songs that revolve around a keyword. (like Star Wars, World of Warcraft, Lord of the Rings, etc.)
 
 Update (6/20/2018): 
    - Can now choose to skip recent songs (within last 2 months)
