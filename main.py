@@ -84,9 +84,23 @@ def is_recent(track):
         return datetime.now().year == year and datetime.now().month - month  <= 2
 
     else:
-        print("old")
         return False
 
+#Gets a string of playlist names, and returns the playlist IDs as a list.
+def process_playlists(username, sp, playlists):
+    result = []
+    names = []
+    while playlists.find(',') != -1:
+        i = playlists.find(',')
+        names.append(playlists[:i])
+        playlists = playlists[i + 2:]
+    all_playlists = sp.user_playlists(username)
+    for n in names:
+        for p in all_playlists['items']:
+            if p['name'] == n and p['public']:
+                result.append(p['id'])
+                break
+    return result
 
 scope = 'playlist-modify-public'
 
@@ -94,22 +108,40 @@ username = input('Your Spotify username: ')
     
 token = util.prompt_for_user_token(username, scope)
 
-key = input('Enter playlist theme: ')
-
-if input('Would you like to ignore recent releases? (Recent releases can have higher \'popularity\' and may appear more in the playlist.) (y/n) ? ') == 'y':
-    allow_recent = False
-else:
-    allow_recent = True
-
-print('Generating playlist...')
-
-#Does an exact search on Spotify, using quotation marks.
-key = '"' + key + '"'
-
 sp = spotipy.Spotify(auth=token)
 
-items = search(key, sp)
+allow_recent = True
 
+print("Menu:")
+print("k - Make a top songs playlist around a keyword theme (Star Wars, World of Warcraft, etc.)")
+print("p - Make a top songs playlist from your given public playlists")
+print("a - Make a top songs playlist from a specific artist.")
+
+pref = ''
+
+while pref != 'k' and pref != 'p':
+    pref = input("Your Choice? ")
+
+if pref == 'k':
+    key = input('Enter playlist theme: ')
+    key = '"' + key + '"'
+    items = search(key, sp)
+
+    if input('Would you like to ignore recent releases? (Recent releases can have higher \'popularity\' and may appear more in the playlist.) (y/n) ? ') == 'y':
+        allow_recent = False
+
+elif pref == 'p':
+    playlists = process_playlists(username, sp, input('Enter the names of your playlists you would like to choose songs from (seperated by a comma and a space): '))
+    playlist_items = []
+    for p in playlists:
+        playlist_items += sp.user_playlist_tracks(username, p)['items']
+
+    items = []
+
+    for p in playlist_items:
+        items.append(p['track'])
+    key = input('Enter Name of New Playlist: ')    
+elif pref == 'a'
 create_playlist(sp, key, items, allow_recent)
 
 input('Success! Press ENTER to exit.')
