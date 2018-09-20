@@ -4,42 +4,38 @@ import spotipy.util as util
 import requests
 from datetime import datetime
 
-#Searches 250 songs for the given keyword and returns a list of all of the tracks.
 def search(key, sp):
-
+    ''' Searches 250 songs for the given keyword and returns a list of all of the tracks. '''
+    result = []
     try:
-        results1 = sp.search(q=key, limit=50, offset=0, type='track')
-        results2 = sp.search(q=key, limit=50, offset=50, type='track')
-        results3 = sp.search(q=key, limit=50, offset=100, type='track')
-        results4 = sp.search(q=key, limit=50, offset=150, type='track')
-        results5 = sp.search(q=key, limit=50, offset=200, type='track')
+        for i in range(5):
+            result += sp.search(q=key, limit=50, offset=i*50, type='track')['tracks']['items']
     except requests.exceptions.RequestException:
         print ("Too many requests. Try again in a few moments.")
         sys.exit(1)
 
-    result = results1['tracks']['items'] + results2['tracks']['items'] + results3['tracks']['items'] + results4['tracks']['items'] + results5['tracks']['items']
-    
     return result
 
-#Cleans a string up from non-letters.
 def cleanup(s):
+    ''' Cleans a string up from non-letters. '''
     result = ""
     for char in s:
         if char.isalpha():
             result = result + char
     return result
 
-#Checks if a track is the same as another track already in a list of tracks.
 def is_copy(track, tracks):
+    ''' Checks if a track is the same as another track already in a list of tracks. '''
     name1 = cleanup(track['name'])
+    
     for t in tracks:
         name2 = cleanup(t['name'])
         if name1 in name2 or name2 in name1:
             return True
     return False
 
-#Creates the desired playlist.
 def create_playlist(sp, key, items, allow_recent):
+    ''' Creates the desired playlist. '''
     max = 0
 
     #Finds the most popular track.
@@ -52,7 +48,7 @@ def create_playlist(sp, key, items, allow_recent):
 
     playlist = sp.user_playlist_create(username, playlist_name)
 
-    threshold = max - (max / 3.7)
+    threshold = max - (max / 3.6)
 
     #List of track IDs for the playlist
     tracks = []
@@ -67,14 +63,11 @@ def create_playlist(sp, key, items, allow_recent):
                 continue
             tracks.append(i['id'])
             added.append(i)
-            for g in sp.artist(i['artists'][0]['id'])['genres']:
-                print(g)
-            print("")    
             
     sp.user_playlist_add_tracks(username, playlist['id'], tracks)
 
-#Returns true if a track is released within the last 2 months.
 def is_recent(track):
+    ''' Returns true if a track is released within the last 2 months. '''
 
     #If release date precision is more precise than a year, continue checking.
     if track['album']['release_date_precision'] != 'year':
@@ -89,8 +82,8 @@ def is_recent(track):
     else:
         return False
 
-#Gets a string of playlist names, and returns the playlist IDs as a list.
 def process_playlists(username, sp, playlists):
+    ''' Gets a string of playlist names, and returns the playlist IDs as a list. '''
     result = []
     names = []
     while playlists.find(',') != -1:
@@ -134,10 +127,14 @@ items = []
 if pref == 's':
     key = input('Enter playlist theme: ')
     key = '"' + key + '"'
-    items = search(key, sp)
 
     if input('Would you like to ignore recent releases? (Recent releases can have higher \'popularity\' and may appear more in the playlist.) (y/n) ? ') == 'y':
         allow_recent = False
+
+    print("Creating...")
+    sys.stdout.flush()
+
+    items = search(key, sp)
 
 elif pref == 'p':
     playlists = process_playlists(username, sp, input('Enter the names of your playlists you would like to choose songs from (seperated by a comma and a space): '))
